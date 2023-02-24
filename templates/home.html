@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ChatGPT</title>
+    <link rel="stylesheet" type="text/css" href="static/style1.css">
+</head>
+
+<body>
+    <h1 align="center">ChatGPT</h1>
+
+    <div id="chatbox">
+        <div id="messages"></div>
+        <div id="status"></div>
+    </div>
+
+    <form id="chat-form">
+        <input id="message-input" type="text" autocomplete="off" placeholder="Type your message here" />
+        <button id="send-button" type="submit">Send</button>
+        <button id="record-button" type="button">Record Voice</button>
+    </form>
+
+    <script>
+        var messages = document.getElementById("messages");
+        var status = document.getElementById("status");
+        var message_input = document.getElementById("message-input");
+        var send_button = document.getElementById("send-button");
+        var record_button = document.getElementById("record-button");
+
+        // function to scroll to the bottom of the chatbox
+        function scrollToBottom() {
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // function to add a message to the chatbox
+        function addMessage(sender, message) {
+            messages.innerHTML += "<div><strong>" + sender + ":</strong> " + message + "</div>";
+            scrollToBottom();
+        }
+
+        // function to send a message to the server
+        function sendMessage(event) {
+            event.preventDefault();
+
+            // get the message from the input field
+            var message = message_input.value.trim();
+
+            // clear the input field
+            message_input.value = "";
+
+            // add the message to the chatbox
+            addMessage("You", message);
+
+            // send the message to the server
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/chat");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onload = function() {
+                addMessage("ChatGPT", xhr.responseText);
+            };
+            xhr.send("message=" + encodeURIComponent(message));
+        }
+
+        // function to handle errors when recording voice
+        function handleRecordError(error) {
+            console.error(error);
+            status.innerHTML = "Error: " + error.message;
+        }
+
+        // function to handle the results of voice recording
+        function handleRecordSuccess(recordedBlob) {
+            // create a new FormData object to send the voice data to the server
+            var formData = new FormData();
+            formData.append("voice_data", recordedBlob);
+
+            // send the voice data to the server
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/voice");
+            xhr.onload = function() {
+                addMessage("You", recordedBlob);
+                addMessage("ChatGPT", xhr.responseText);
+            };
+            xhr.send(formData);
+        }
+
+        // function to handle voice recording
+        function recordVoice() {
+            status.innerHTML = "Recording...";
+
+            // create a new MediaRecorder object to record the voice
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+                var mediaRecorder = new MediaRecorder(stream);
+
+                // add event listeners for when the recording is stopped or data is available
+                mediaRecorder.addEventListener("stop", function() {
+                    // convert the recorded data to a Blob object and pass it to the success callback
+                    var recordedBlob = new Blob(chunks, { type: "audio/webm" });
+                    handleRecordSuccess(recordedBlob);
+                });
+                mediaRecorder.addEventListener("dataavailable", function(event) {
+                    // add the data to the chunks array
+                    chunks.push(event.data);
+                });
+
+                // start the recording and initialize the chunks array
+                mediaRecorder.start();
+                var chunks = [];
+                            // add event listener for when the recording is stopped manually
+            record_button.addEventListener("click", function() {
+                // stop the recording and reset the status message
+                mediaRecorder.stop();
+                status.innerHTML = "";
+                    });
+                }).catch(handleRecordError);
+            }
+
+            // add event listeners for sending messages and recording voice
+            send_button.addEventListener("click", sendMessage);
+            record_button.addEventListener("click", recordVoice);
+
+    </script>
+</body>
+
+</html>
+

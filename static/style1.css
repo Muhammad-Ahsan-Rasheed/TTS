@@ -1,0 +1,64 @@
+/* Chat box styles */
+#chatbox {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    height: 500px;
+    overflow-y: scroll;
+}
+
+#messages {
+    margin-bottom: 10px;
+}
+
+/* Input field styles */
+#chat-form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#message-input {
+    flex-grow: 1;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+#send-button {
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#send-button:hover {
+    background-color: #3e8e41;
+}
+
+#record-button {
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #2196F3;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#record-button:hover {
+    background-color: #0b7dda;
+}
+
+/* Status message styles */
+#status {
+    font-size: 16px;
+    font-style: italic;
+    margin-top: 10px;
+}
+
